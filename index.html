@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Nutrition</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #F7F5F0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+  }
+  #quiz-wrap {
+    max-width: 560px;
+    width: 100%;
+    margin: 0 auto;
+  }
+  .header-logo {
+    text-align: center;
+    margin-bottom: 1.75rem;
+  }
+  .header-logo .title-main {
+    font-family: Georgia, serif;
+    font-size: 26px;
+    font-weight: 500;
+    color: #2C2C2A;
+  }
+  .header-logo .title-sub {
+    font-size: 13px;
+    color: #888780;
+    margin-top: 4px;
+  }
+  .progress-bar-bg {
+    height: 6px;
+    background: #E8E6E0;
+    border-radius: 99px;
+    margin-bottom: 1.25rem;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: #7F9E72;
+    border-radius: 99px;
+    transition: width 0.4s;
+  }
+  .step-label {
+    font-size: 12px;
+    color: #888780;
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .q-card {
+    background: #fff;
+    border: 1px solid #E8E6E0;
+    border-radius: 14px;
+    padding: 1.75rem;
+    margin-bottom: 1rem;
+  }
+  .badge-diff {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 12px;
+    border-radius: 99px;
+    margin-bottom: 1rem;
+  }
+  .badge-facile { background: #EAF3DE; color: #3B6D11; }
+  .badge-difficile { background: #FAECE7; color: #993C1D; }
+  .q-text {
+    font-size: 17px;
+    font-weight: 500;
+    color: #2C2C2A;
+    margin-bottom: 1.25rem;
+    line-height: 1.5;
+  }
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .opt-btn {
+    background: #fff;
+    border: 1px solid #D3D1C7;
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    font-size: 14px;
+    color: #2C2C2A;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+  }
+  .opt-btn:hover:not(:disabled) { background: #F7F5F0; }
+  .opt-btn.correct { background: #EAF3DE; border-color: #639922; color: #3B6D11; }
+  .opt-btn.wrong { background: #FAECE7; border-color: #993C1D; color: #993C1D; }
+  .opt-btn.reveal-correct { background: #EAF3DE; border-color: #639922; color: #3B6D11; }
+  .feedback-box {
+    margin-top: 1rem;
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.6;
+    display: none;
+  }
+  .feedback-box.show { display: block; }
+  .feedback-correct { background: #EAF3DE; color: #3B6D11; }
+  .feedback-wrong { background: #FAECE7; color: #993C1D; }
+  .next-btn {
+    margin-top: 1.25rem;
+    width: 100%;
+    background: #7F9E72;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 0.85rem;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    display: none;
+    transition: background 0.15s;
+  }
+  .next-btn:hover { background: #5C7D52; }
+  .result-card {
+    background: #fff;
+    border: 1px solid #E8E6E0;
+    border-radius: 14px;
+    padding: 2.5rem 1.75rem;
+    text-align: center;
+    display: none;
+  }
+  .result-icon { font-size: 52px; margin-bottom: 0.75rem; }
+  .result-title { font-size: 22px; font-weight: 500; color: #2C2C2A; margin-bottom: 0.5rem; }
+  .result-score { font-size: 42px; font-weight: 500; color: #7F9E72; margin-bottom: 1rem; }
+  .result-msg {
+    font-size: 14px;
+    color: #5F5E5A;
+    line-height: 1.7;
+    margin-bottom: 1.75rem;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .rdv-btn {
+    display: inline-block;
+    background: #7F9E72;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 0.9rem 2rem;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s;
+    margin-bottom: 0.75rem;
+  }
+  .rdv-btn:hover { background: #5C7D52; }
+  .restart-btn {
+    display: block;
+    margin: 0.5rem auto 0;
+    background: none;
+    border: 1px solid #D3D1C7;
+    border-radius: 10px;
+    padding: 0.65rem 1.5rem;
+    font-size: 14px;
+    color: #888780;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .restart-btn:hover { background: #F7F5F0; }
+</style>
+</head>
+<body>
+<div id="quiz-wrap">
+  <div class="header-logo">
+    <div class="title-main">Quiz Nutrition</div>
+    <div class="title-sub">Testez vos connaissances en alimentation</div>
+  </div>
+
+  <div id="quiz-main">
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="prog-fill" style="width:0%"></div>
+    </div>
+    <div class="step-label" id="step-label">Question 1 / 7</div>
+
+    <div class="q-card">
+      <span class="badge-diff" id="badge-diff"></span>
+      <div class="q-text" id="q-text"></div>
+      <div class="options" id="options"></div>
+      <div class="feedback-box" id="feedback-box"></div>
+      <button class="next-btn" id="next-btn">Question suivante</button>
+    </div>
+  </div>
+
+  <div class="result-card" id="result-card">
+    <div class="result-icon" id="res-icon"></div>
+    <div class="result-title" id="res-title"></div>
+    <div class="result-score" id="res-score"></div>
+    <div class="result-msg" id="res-msg"></div>
+    <a class="rdv-btn" href="https://www.rdv360.com/mp-diet-88100-st-die-des-vosges" target="_blank">📅 Prendre rendez-vous</a>
+    <button class="restart-btn" id="restart-btn">Recommencer le quiz</button>
+  </div>
+</div>
+
+<script>
+const questions = [
+  {
+    diff: "facile",
+    q: "L'eau représente environ quelle proportion du corps humain ?",
+    opts: ["40%", "60%", "80%", "90%"],
+    ans: 1,
+    expl: "Le corps humain est composé d'environ 60% d'eau. Rester bien hydraté est essentiel pour toutes les fonctions vitales."
+  },
+  {
+    diff: "facile",
+    q: "Combien de repas principaux est-il généralement recommandé de prendre par jour ?",
+    opts: ["1", "2", "3", "5"],
+    ans: 2,
+    expl: "3 repas principaux par jour est la référence classique, avec éventuellement 1 à 2 collations selon les besoins individuels."
+  },
+  {
+    diff: "facile",
+    q: "Parmi ces aliments, lequel est une bonne source de protéines végétales ?",
+    opts: ["Pain blanc", "Lentilles", "Beurre", "Huile d'olive"],
+    ans: 1,
+    expl: "Les lentilles sont excellentes en protéines végétales (environ 9g/100g cuits) et riches en fibres et en fer."
+  },
+  {
+    diff: "facile",
+    q: "Le petit-déjeuner est souvent considéré comme le repas le plus important de la journée. Vrai ou faux ?",
+    opts: ["Vrai, il doit toujours être copieux", "Faux, tous les repas comptent également", "Vrai uniquement pour les sportifs", "Faux, seul le dîner compte"],
+    ans: 1,
+    expl: "Tous les repas ont leur importance. Le petit-déjeuner est utile pour certains profils, mais ce qui compte surtout c'est la qualité globale de l'alimentation."
+  },
+  {
+    diff: "difficile",
+    q: "Quelle est la différence entre un sucre rapide et un sucre lent ?",
+    opts: ["La couleur de l'aliment", "L'index glycémique et la vitesse d'absorption", "La quantité de calories", "La texture de l'aliment"],
+    ans: 1,
+    expl: "La distinction repose sur l'index glycémique : les sucres à IG élevé provoquent un pic glycémique rapide, tandis que les glucides à IG bas sont absorbés progressivement."
+  },
+  {
+    diff: "difficile",
+    q: "Quel macronutriment joue un rôle clé dans la construction et la réparation musculaire ?",
+    opts: ["Les lipides", "Les glucides", "Les protéines", "Les fibres"],
+    ans: 2,
+    expl: "Les protéines sont les briques de construction des muscles. Les acides aminés essentiels qu'elles contiennent sont indispensables à la synthèse et à la réparation musculaire."
+  },
+  {
+    diff: "difficile",
+    q: "Parmi ces affirmations sur les graisses, laquelle est correcte ?",
+    opts: [
+      "Toutes les graisses sont nocives pour la santé",
+      "Les acides gras oméga-3 sont bénéfiques pour le cœur",
+      "Les graisses saturées sont toujours à éviter complètement",
+      "Les graisses n'apportent aucune énergie"
+    ],
+    ans: 1,
+    expl: "Les oméga-3 (poissons gras, noix, graines de lin) ont des effets protecteurs cardiovasculaires prouvés. Toutes les graisses ne sont pas ennemies — la qualité prime sur la quantité."
+  }
+];
+
+let current = 0, score = 0, answered = false;
+
+function render() {
+  const q = questions[current];
+  document.getElementById("prog-fill").style.width = (current / 7 * 100) + "%";
+  document.getElementById("step-label").textContent = "Question " + (current + 1) + " / 7";
+  const badge = document.getElementById("badge-diff");
+  badge.textContent = q.diff === "facile" ? "Facile" : "Difficile";
+  badge.className = "badge-diff " + (q.diff === "facile" ? "badge-facile" : "badge-difficile");
+  document.getElementById("q-text").textContent = q.q;
+  const fb = document.getElementById("feedback-box");
+  fb.className = "feedback-box"; fb.textContent = "";
+  const nb = document.getElementById("next-btn");
+  nb.style.display = "none";
+  nb.textContent = current < 6 ? "Question suivante" : "Voir mes résultats";
+  answered = false;
+  const opts = document.getElementById("options");
+  opts.innerHTML = "";
+  q.opts.forEach((o, i) => {
+    const btn = document.createElement("button");
+    btn.className = "opt-btn"; btn.textContent = o;
+    btn.onclick = () => choose(i);
+    opts.appendChild(btn);
+  });
+}
+
+function choose(idx) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  const btns = document.querySelectorAll(".opt-btn");
+  btns.forEach(b => b.disabled = true);
+  const fb = document.getElementById("feedback-box");
+  if (idx === q.ans) {
+    score++;
+    btns[idx].className = "opt-btn correct";
+    fb.className = "feedback-box show feedback-correct";
+    fb.innerHTML = "<strong>Bonne réponse !</strong> " + q.expl;
+  } else {
+    btns[idx].className = "opt-btn wrong";
+    btns[q.ans].className = "opt-btn reveal-correct";
+    fb.className = "feedback-box show feedback-wrong";
+    fb.innerHTML = "<strong>Pas tout à fait !</strong> " + q.expl;
+  }
+  document.getElementById("next-btn").style.display = "block";
+}
+
+document.getElementById("next-btn").onclick = () => {
+  current++;
+  if (current < 7) { render(); } else { showResult(); }
+};
+
+function showResult() {
+  document.getElementById("prog-fill").style.width = "100%";
+  document.getElementById("quiz-main").style.display = "none";
+  const rc = document.getElementById("result-card");
+  rc.style.display = "block";
+  const pct = score / 7;
+  let icon, title, msg;
+  if (pct <= 2/7) {
+    icon = "🌱"; title = "Les bases à consolider";
+    msg = "Pas de panique ! La nutrition, ça s'apprend. Avec quelques ajustements personnalisés, tu pourrais déjà te sentir beaucoup mieux au quotidien. Je suis là pour t'accompagner pas à pas.";
+  } else if (pct <= 5/7) {
+    icon = "🥗"; title = "Bonne progression !";
+    msg = "Tu as de bonnes bases, mais il reste des zones à affiner. Un suivi personnalisé permettrait d'optimiser ton alimentation selon tes objectifs et ton mode de vie.";
+  } else {
+    icon = "🏆"; title = "Excellent niveau !";
+    msg = "Bravo, tes connaissances en nutrition sont solides ! Même avec un bon niveau, un accompagnement professionnel peut t'aider à aller encore plus loin dans tes objectifs.";
+  }
+  document.getElementById("res-icon").textContent = icon;
+  document.getElementById("res-title").textContent = title;
+  document.getElementById("res-score").textContent = score + " / 7";
+  document.getElementById("res-msg").textContent = msg;
+}
+
+document.getElementById("restart-btn").onclick = () => {
+  current = 0; score = 0;
+  document.getElementById("quiz-main").style.display = "block";
+  document.getElementById("result-card").style.display = "none";
+  render();
+};
+
+render();
+</script>
+</body>
+</html>
